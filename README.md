@@ -7,8 +7,6 @@ A new Flutter project.
 FarmWeather 🌦️ ✅
 FarmWeather é um aplicativo Flutter desenvolvido para auxiliar no gerenciamento de tarefas agrícolas e na consulta de condições climáticas locais, com foco em funcionalidade online e offline.
 
-Nota: O GIF acima é um exemplo. Grave um GIF do seu próprio app funcionando! Ferramentas como ScreenToGif (Windows) ou Kap (macOS) são ótimas para isso.
-
 ✨ Funcionalidades
 Gerenciamento de Tarefas
 Listagem de Tarefas: Visualização clara de todas as tarefas pendentes, em andamento e finalizadas.
@@ -22,11 +20,11 @@ Busca em Tempo Real: Filtre tarefas instantaneamente pelo nome ou pela área.
 Persistência Local: Todas as tarefas são salvas em um banco de dados SQLite local usando o framework Drift.
 
 Consulta de Clima
-Dados Atuais: Exibição da temperatura, umidade e um ícone representando a condição climática atual.
+Dados Atuais: Exibição da temperatura, umidade e um ícone representando a condição climática atual no local atual, caso esteja com a localização ativada.
 
 Previsão Horária: Gráfico com a previsão de temperatura para as próximas horas.
 
-API Pública: Integração com a API Open-Meteo para obter dados climáticos precisos para a localização de Petrópolis/RJ.
+API Pública: Integração com a API Open-Meteo para obter dados climáticos precisos para a sua localização atual. Caso esteja com a localização desligada, será buscada o local padrão, que é Petropolis - RJ.
 
 Cache Offline Inteligente: A última consulta de clima é salva localmente. Se o aplicativo for aberto sem conexão com a internet, ele exibe os últimos dados salvos.
 
