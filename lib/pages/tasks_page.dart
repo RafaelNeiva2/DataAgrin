@@ -1,10 +1,13 @@
+import 'package:farmweather/pages/weather_page.dart';
 import 'package:farmweather/util/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../database/database.dart';
 import 'package:drift/drift.dart' as drift;
-
+import '../util/bottom_nav_bar.dart';
+import '../util/custom_classes.dart';
+import 'createtask_page.dart';
 
 class TodoPage extends StatefulWidget {
   const TodoPage({super.key});
@@ -14,53 +17,140 @@ class TodoPage extends StatefulWidget {
 }
 
 class _TodoPageState extends State<TodoPage> {
+  final _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text;
+      });
+    });
+  }
+
+  void _onNavBarTap(int index) {
+    if (index == 0) return;
+    if (index == 1) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const WeatherPage()),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final db = Provider.of<AppDatabase>(context);
 
     return Scaffold(
       appBar: MyAppBar(),
-      body: StreamBuilder<List<Tarefa>>(
-        stream: db.watchAllTarefas(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final tarefas = snapshot.data!;
-
-          if (tarefas.isEmpty) {
-            return const Center(
-              child: Text(
-                'Nenhuma tarefa para hoje.\nAdicione uma nova no botão "+".',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 18, color: Colors.grey),
-              ),
-            );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(8.0),
-            itemCount: tarefas.length,
-            itemBuilder: (context, index) {
-              final tarefa = tarefas[index];
-              return TaskCard(tarefa: tarefa);
-            },
-          );
-        },
+      bottomNavigationBar: MyBottomNavBar(
+      currentIndex: 0,
+      onTap: _onNavBarTap,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: (){
-            // vou chamar a pagina de criar tarefa aqui
-        },
-        backgroundColor: Color(0xFFFFC900),
-        child: const Icon(Icons.add),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: CustomTextFormField(
+                    hintText: "Pesquise uma tarefa...",
+                    controller: _searchController,
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value;
+                      });
+                    },
+                    icon: Icons.search,
+                    colorIcon: Colors.grey,
+                    width: double.infinity,
+                    height: 49,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF2F2F2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.add, color: Colors.black),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const CreateTaskPage()),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: StreamBuilder<List<Tarefa>>(
+              stream: db.watchAllTarefas(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final tarefas = snapshot.data!;
+
+                if (tarefas.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'Nenhuma tarefa para hoje.\nAdicione uma nova no botão "+".',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                    ),
+                  );
+                }
+
+                final filteredTarefas = tarefas.where((tarefa) {
+                  final nomeLower = tarefa.nome.toLowerCase();
+                  final talhaoLower = tarefa.talhao.toLowerCase();
+                  final queryLower = _searchQuery.toLowerCase();
+                  return nomeLower.contains(queryLower) ||
+                      talhaoLower.contains(queryLower);
+                }).toList();
+
+                if (filteredTarefas.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'Nenhuma tarefa encontrada.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.all(8.0),
+                  itemCount: filteredTarefas.length,
+                  itemBuilder: (context, index) {
+                    final tarefa = filteredTarefas[index];
+                    return TaskCard(tarefa: tarefa);
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
 }
-
-
 
 class TaskCard extends StatelessWidget {
   final Tarefa tarefa;
@@ -133,18 +223,13 @@ class TaskCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
-
-
                       _buildInfoRow(
                           Icons.location_on_outlined, 'Área: ${tarefa.talhao}'),
                       const SizedBox(height: 6),
                       _buildInfoRow(Icons.access_time_filled_rounded,
                           'Previsto: ${DateFormat.Hm().format(tarefa.horaPrevista)}'),
-
                       const Spacer(),
                       const SizedBox(height: 16),
-
-
                       Align(
                         alignment: Alignment.centerRight,
                         child: _buildStatusDropdown(context, db, statusColor),
@@ -160,7 +245,6 @@ class TaskCard extends StatelessWidget {
     );
   }
 
-
   Widget _buildInfoRow(IconData icon, String text) {
     return Row(
       children: [
@@ -172,7 +256,8 @@ class TaskCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusDropdown(BuildContext context, AppDatabase db, Color statusColor) {
+  Widget _buildStatusDropdown(
+      BuildContext context, AppDatabase db, Color statusColor) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
@@ -183,20 +268,18 @@ class TaskCard extends StatelessWidget {
         value: tarefa.status,
         onChanged: (newStatus) {
           if (newStatus != null) {
-            final updatedTarefa = tarefa.toCompanion(true).copyWith(
+            final updatedTarefa =
+            tarefa.toCompanion(true).copyWith(
               status: drift.Value(newStatus),
             );
             db.updateTarefa(updatedTarefa);
           }
         },
-
         underline: Container(),
-
         icon: Icon(
           Icons.keyboard_arrow_down_rounded,
           color: statusColor,
         ),
-
         style: TextStyle(
           color: statusColor,
           fontWeight: FontWeight.bold,

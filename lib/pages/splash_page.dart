@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:farmweather/pages/todo_page.dart';
+import 'package:farmweather/pages/tasks_page.dart';
 import 'package:flutter/material.dart';
 
 class SplashPage extends StatefulWidget {

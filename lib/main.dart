@@ -30,6 +30,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
       ),
 
+
       home: const SplashPage(),
     );
   }
