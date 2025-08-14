@@ -49,9 +49,9 @@ Gerenciamento de Estado: Provider & StatefulWidget
 
 Formatação de Datas: intl
 
-Como executar o projeto?
-1- Clonar o repositorio: 
-2- Navegar até o projeto
-3- Instalar as dependências : flutter pub get
-4- Executar o gerador de codigo do Drift: flutter pub run build_runner build --delete-conflicting-outputs
+## Como executar o projeto?
+1- Clonar o repositorio: https://github.com/RafaelNeiva2/DataAgrin.git <br>
+2- Navegar até o projeto <br>
+3- Instalar as dependências : flutter pub get <br>
+4- Executar o gerador de codigo do Drift: flutter pub run build_runner build --delete-conflicting-outputs <br>
 5- Executar o aplicativo: flutter run
