@@ -49,6 +49,8 @@ dependencies:
   connectivity_plus: ^6.0.3
 
   provider: ^6.0.5
+  geolocator: ^14.0.2
+  geocoding: ^4.0.0
 
 
 dev_dependencies:

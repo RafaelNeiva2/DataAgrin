@@ -91,8 +91,20 @@ class _WeatherPageState extends State<WeatherPage> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    _buildStatusIndicator(weather.isLive, weather.lastUpdated),
-                    const SizedBox(height: 24),
+                    _buildStatusIndicator(weather.isLive, weather.lastUpdated, weather.isLocation),
+                    const SizedBox(height: 26),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.location_on, color: Colors.grey, size: 22),
+                        SizedBox(width: 8),
+                        Text(
+                          weather.locationName,
+                          style: TextStyle(fontSize: 20, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 18),
                     _buildCurrentWeather(weather),
                     const SizedBox(height: 32),
                     _buildHourlyForecast(weather.hourlyForecast),
@@ -108,42 +120,46 @@ class _WeatherPageState extends State<WeatherPage> {
     );
   }
 
-
-  Widget _buildStatusIndicator(bool isLive, DateTime lastUpdated) {
-    return Card(
-      color: isLive ? Colors.green[50] : Colors.blueGrey[50],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: isLive ? Colors.green : Colors.blueGrey),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isLive ? Icons.wifi : Icons.wifi_off,
-              color: isLive ? Colors.green : Colors.blueGrey,
-              size: 20,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              isLive ? 'Dados Ao Vivo' : 'Dados em Cache',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: isLive ? Colors.green.shade800 : Colors.blueGrey.shade800,
-              ),
-            ),
-            const Spacer(),
-            Text(
-              'Últ. At: ${DateFormat('HH:mm').format(lastUpdated)}',
-              style: TextStyle(color: Colors.grey[600], fontSize: 12),
-            )
-          ],
+  Widget _buildStatusIndicator(bool isLive, DateTime lastUpdated, bool isLocation ){
+    return Row(
+      children: [
+        Container(
+          height: 12,
+          width: 12,
+          decoration: BoxDecoration(
+            color: isLive ? Colors.green[200] : Colors.blueGrey[50],
+            shape:  BoxShape.circle,
+          ),
         ),
-      ),
+        SizedBox(width: 10),
+        Icon(
+          isLive ? Icons.wifi : Icons.wifi_off,
+          color: isLive ? Colors.green[200] : Colors.blueGrey[50],
+          size: 20,
+        ),
+        SizedBox(width:8 ),
+        Icon(
+          isLocation ? Icons.location_on : Icons.location_off,
+          color: isLocation ? Colors.green[200] : Colors.blueGrey[50],
+          size: 20,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          isLive ? 'Dados Ao Vivo' : 'Dados em Cache',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: isLive ? Colors.green[200] : Colors.blueGrey.shade800,
+          ),
+        ),
+        const Spacer(),
+        Text(
+          'Últ. At: ${DateFormat('HH:mm').format(lastUpdated)}',
+          style: TextStyle(color: Colors.grey[600], fontSize: 12),
+        )
+      ],
     );
   }
+
 
   Widget _buildCurrentWeather(WeatherData weather) {
     return Column(

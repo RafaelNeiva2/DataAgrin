@@ -52,10 +52,7 @@ class _TodoPageState extends State<TodoPage> {
 
     return Scaffold(
       appBar: MyAppBar(),
-      bottomNavigationBar: MyBottomNavBar(
-      currentIndex: 0,
-      onTap: _onNavBarTap,
-      ),
+      bottomNavigationBar: MyBottomNavBar(currentIndex: 0, onTap: _onNavBarTap),
       body: Column(
         children: [
           Padding(
@@ -89,7 +86,8 @@ class _TodoPageState extends State<TodoPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const CreateTaskPage()),
+                          builder: (context) => const CreateTaskPage(),
+                        ),
                       );
                     },
                   ),
@@ -117,13 +115,14 @@ class _TodoPageState extends State<TodoPage> {
                   );
                 }
 
-                final filteredTarefas = tarefas.where((tarefa) {
-                  final nomeLower = tarefa.nome.toLowerCase();
-                  final talhaoLower = tarefa.talhao.toLowerCase();
-                  final queryLower = _searchQuery.toLowerCase();
-                  return nomeLower.contains(queryLower) ||
-                      talhaoLower.contains(queryLower);
-                }).toList();
+                final filteredTarefas =
+                    tarefas.where((tarefa) {
+                      final nomeLower = tarefa.nome.toLowerCase();
+                      final talhaoLower = tarefa.talhao.toLowerCase();
+                      final queryLower = _searchQuery.toLowerCase();
+                      return nomeLower.contains(queryLower) ||
+                          talhaoLower.contains(queryLower);
+                    }).toList();
 
                 if (filteredTarefas.isEmpty) {
                   return const Center(
@@ -154,6 +153,7 @@ class _TodoPageState extends State<TodoPage> {
 
 class TaskCard extends StatelessWidget {
   final Tarefa tarefa;
+
   const TaskCard({super.key, required this.tarefa});
 
   Color _getStatusColor(Status status) {
@@ -204,35 +204,51 @@ class TaskCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                width: 8,
-                color: statusColor,
-              ),
+              Container(width: 8, color: statusColor),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        tarefa.nome,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF333333),
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              tarefa.nome,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF333333),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: _buildStatusDropdown(
+                              context,
+                              db,
+                              statusColor,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 12),
-                      _buildInfoRow(
-                          Icons.location_on_outlined, 'Área: ${tarefa.talhao}'),
-                      const SizedBox(height: 6),
-                      _buildInfoRow(Icons.access_time_filled_rounded,
-                          'Previsto: ${DateFormat.Hm().format(tarefa.horaPrevista)}'),
-                      const Spacer(),
-                      const SizedBox(height: 16),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: _buildStatusDropdown(context, db, statusColor),
+
+                      Column(
+                        children: [
+                          const SizedBox(height: 12),
+                          _buildInfoRow(
+                            Icons.location_on_outlined,
+                            'Área: ${tarefa.talhao}',
+                          ),
+                          const SizedBox(height: 6),
+                          _buildInfoRow(
+                            Icons.access_time_filled_rounded,
+                            'Previsto: ${DateFormat.Hm().format(tarefa.horaPrevista)}',
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -250,16 +266,21 @@ class TaskCard extends StatelessWidget {
       children: [
         Icon(icon, color: Colors.grey[600], size: 18),
         const SizedBox(width: 8),
-        Text(text,
-            style: const TextStyle(fontSize: 15, color: Color(0xFF555555))),
+        Text(
+          text,
+          style: const TextStyle(fontSize: 15, color: Color(0xFF555555)),
+        ),
       ],
     );
   }
 
   Widget _buildStatusDropdown(
-      BuildContext context, AppDatabase db, Color statusColor) {
+    BuildContext context,
+    AppDatabase db,
+    Color statusColor,
+  ) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
       decoration: BoxDecoration(
         color: statusColor.withOpacity(0.15),
         borderRadius: BorderRadius.circular(20),
@@ -268,35 +289,32 @@ class TaskCard extends StatelessWidget {
         value: tarefa.status,
         onChanged: (newStatus) {
           if (newStatus != null) {
-            final updatedTarefa =
-            tarefa.toCompanion(true).copyWith(
-              status: drift.Value(newStatus),
-            );
+            final updatedTarefa = tarefa
+                .toCompanion(true)
+                .copyWith(status: drift.Value(newStatus));
             db.updateTarefa(updatedTarefa);
           }
         },
         underline: Container(),
-        icon: Icon(
-          Icons.keyboard_arrow_down_rounded,
-          color: statusColor,
-        ),
+        icon: Icon(Icons.keyboard_arrow_down_rounded, color: statusColor),
         style: TextStyle(
           color: statusColor,
           fontWeight: FontWeight.bold,
           fontSize: 14,
         ),
-        items: Status.values.map((status) {
-          return DropdownMenuItem(
-            value: status,
-            child: Text(
-              _getStatusText(status),
-              style: const TextStyle(
-                color: Colors.black87,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-          );
-        }).toList(),
+        items:
+            Status.values.map((status) {
+              return DropdownMenuItem(
+                value: status,
+                child: Text(
+                  _getStatusText(status),
+                  style: const TextStyle(
+                    color: Colors.black87,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+              );
+            }).toList(),
       ),
     );
   }
