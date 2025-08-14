@@ -1,7 +1,4 @@
 # farmweather
-
-A new Flutter project.
-
 ## Getting Started
 
 FarmWeather 🌦️ ✅
